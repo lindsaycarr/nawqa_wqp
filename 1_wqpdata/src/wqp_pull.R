@@ -12,6 +12,29 @@ filter_partitions <- function(partitions, pull_task) {
   dplyr::filter(partitions, PullTask==pull_task)
 }
 
+#
+get_mult_inventory <- function(ind_folder) {
+  all_ind_files <- list.files(ind_folder)
+  for(ind_file in all_ind_files) {
+    gd_get(ind_file)
+  }
+  invisible()
+}
+
+partition_mult_inventory <- function(inventory_folder, wqp_pull, wqp_state_codes, wqp_codes) {
+  all_ind_files <- list.files(inventory_folder)
+  all_partitions <- data.frame()
+  for(ind_filename in all_ind_files) {
+    if(!grepl(".ind", ind_filename)) { next }
+    ind_file <- file.path(inventory_folder, ind_filename)
+    all_partitions <- rbind(
+      all_partitions,
+      partition_inventory(ind_file, wqp_pull, wqp_state_codes, wqp_codes)
+    )
+  }
+  return(all_partitions)
+}
+
 # package all the configuration information for a single partition into each row
 # so that we know whether to re-pull a partition based solely on whether the
 # contents of that row have changed. each row should therefore include the lists

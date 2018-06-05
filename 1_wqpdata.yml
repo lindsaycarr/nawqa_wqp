@@ -67,22 +67,22 @@ targets:
   # remake targets, but let's risk having to redo the inventory for the sake of
   # keeping this remake file a touch simpler and practicing the two-target option
   # for gd_put/gd_get)
-  1_wqpdata/out/inventory/wqp_inventory.feather.ind:
-    depends: 1_wqpdata/out/inventory
+  wqp_constituent_inventories:
+    #depends: 1_wqpdata/out/inventory
     command: inventory_wqp(
-      ind_file=target_name,
+      ind_folder="1_wqpdata/out/inventory",
       wqp_state_codes=wqp_state_codes,
       wqp_states=wqp_states,
       wqp_codes=wqp_codes)
   # the only job of this data recipe is to pull data from the shared cache
-  1_wqpdata/out/inventory/wqp_inventory.feather:
-    command: gd_get('1_wqpdata/out/inventory/wqp_inventory.feather.ind')
+  wqp_pull_inventories:
+    command: get_mult_inventory('1_wqpdata/out/inventory')
   # use the inventory. because this is an object, everybody will end up
   # pulling wqp_inventory.feather and building this object locally, if only
   # to know whether 1_wqpdata/log/tasks_1_wqp.ind is up to date
   wqp_pull_partitions:
-    command: partition_inventory(
-      inventory_ind='1_wqpdata/out/inventory/wqp_inventory.feather.ind',
+    command: partition_mult_inventory(
+      inventory_folder='1_wqpdata/out/inventory',
       wqp_pull=wqp_pull,
       wqp_state_codes=wqp_state_codes,
       wqp_codes=wqp_codes)

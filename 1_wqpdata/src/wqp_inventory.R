@@ -19,7 +19,7 @@ get_wqp_state_codes <- function() {
 # acquire a data frame of site x constituent information, with counts of
 # observations per site-constituent combination and all the site metadata that
 # looks useful
-inventory_wqp <- function(ind_file, wqp_state_codes, wqp_states, wqp_codes) {
+inventory_wqp <- function(ind_folder, wqp_state_codes, wqp_states, wqp_codes) {
   # convert states list to FIPS list
   state_codes <- filter(wqp_state_codes, name %in% wqp_states) %>% pull(value)
 
@@ -78,10 +78,17 @@ inventory_wqp <- function(ind_file, wqp_state_codes, wqp_states, wqp_codes) {
              LongitudeMeasure = ifelse(LongitudeMeasure > -10, NA, LongitudeMeasure)),
     by='MonitoringLocationIdentifier')
 
-  # write the data file and the indicator file
-  data_file <- as_data_file(ind_file)
-  feather::write_feather(wqp_info, path=data_file)
-  gd_put(ind_file, data_file) # sc_indicate(ind_file, data_file=data_file)
+  for(consti in constituents) {
+    wqp_info_consti <- wqp_info %>% filter(Constituent == consti)
+
+    ind_filename <- paste0("wqp_inventory_", consti, ".feather.ind")
+    ind_file <- file.path(ind_folder, ind_filename)
+
+    # write the data file and the indicator file
+    data_file <- as_data_file(ind_file)
+    feather::write_feather(wqp_info_consti, path=data_file)
+    gd_put(ind_file, data_file) # sc_indicate(ind_file, data_file=data_file)
+  }
 
   invisible()
 }
